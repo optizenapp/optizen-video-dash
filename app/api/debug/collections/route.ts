@@ -9,7 +9,7 @@ export async function GET() {
     const collections = await db.listCollections().toArray();
     
     // Get sample data from each collection
-    const collectionData: any = {};
+    const collectionData: Record<string, { count: number; sample: unknown }> = {};
     
     for (const collection of collections) {
       const name = collection.name;

@@ -49,8 +49,16 @@ export async function getStoreAnalytics(storeId: string) {
   const summaries = await analyticsSummaries.find({ shopDomain }).toArray();
   
   // Create a map of campaign analytics by campaignId
-  const analyticsMap = new Map();
-  summaries.forEach((summary: any) => {
+  interface CampaignStats {
+    impressions: number;
+    views: number;
+    addToCartConversions: number;
+    conversions: number;
+    revenue: number;
+  }
+  
+  const analyticsMap = new Map<string, CampaignStats>();
+  summaries.forEach((summary: Record<string, unknown>) => {
     const campaignId = summary.campaignId?.toString();
     if (campaignId) {
       if (!analyticsMap.has(campaignId)) {
@@ -63,11 +71,13 @@ export async function getStoreAnalytics(storeId: string) {
         });
       }
       const stats = analyticsMap.get(campaignId);
-      stats.impressions += summary.impressions || 0;
-      stats.views += summary.views || 0;
-      stats.addToCartConversions += summary.addToCartConversions || 0;
-      stats.conversions += summary.conversions || 0;
-      stats.revenue += summary.revenue || 0;
+      if (stats) {
+        stats.impressions += (summary.impressions as number) || 0;
+        stats.views += (summary.views as number) || 0;
+        stats.addToCartConversions += (summary.addToCartConversions as number) || 0;
+        stats.conversions += (summary.conversions as number) || 0;
+        stats.revenue += (summary.revenue as number) || 0;
+      }
     }
   });
   
@@ -85,8 +95,8 @@ export async function getStoreAnalytics(storeId: string) {
   let totalConversions = 0;
   let totalRevenue = 0;
   
-  campaigns.forEach((campaign: any) => {
-    const campaignId = campaign._id.toString();
+  campaigns.forEach((campaign: Record<string, unknown>) => {
+    const campaignId = (campaign._id as { toString(): string }).toString();
     const analytics = analyticsMap.get(campaignId);
     if (analytics) {
       totalImpressions += analytics.impressions;
@@ -97,7 +107,7 @@ export async function getStoreAnalytics(storeId: string) {
     }
   });
   
-  const activeCampaigns = campaigns.filter((c: any) => c.isActive).length;
+  const activeCampaigns = campaigns.filter((c: Record<string, unknown>) => c.isActive).length;
   const addToCartRate = totalViews > 0 
     ? ((totalAddToCartConversions / totalViews) * 100).toFixed(1) 
     : "0.0";
@@ -106,8 +116,8 @@ export async function getStoreAnalytics(storeId: string) {
     : "0.0";
   
   // Format campaigns with their analytics
-  const formattedCampaigns = campaigns.map((campaign: any) => {
-    const campaignId = campaign._id.toString();
+  const formattedCampaigns = campaigns.map((campaign: Record<string, unknown>) => {
+    const campaignId = (campaign._id as { toString(): string }).toString();
     const analytics = analyticsMap.get(campaignId) || {
       impressions: 0,
       views: 0,
@@ -161,8 +171,8 @@ export async function getStoreAnalytics(storeId: string) {
       activeCampaigns: campaigns.length,
     },
     campaigns: formattedCampaigns,
-    videos: videos.map((v: any) => ({
-      _id: v._id.toString(),
+    videos: videos.map((v: Record<string, unknown>) => ({
+      _id: (v._id as { toString(): string }).toString(),
       status: v.status || "pending",
       createdAt: v.createdAt,
       productId: v.productId,
@@ -190,7 +200,7 @@ export async function getAllStores() {
   const shops = await shopsCollection.find({}).sort({ createdAt: -1 }).toArray();
   
   // Transform to match expected format
-  return shops.map((shop: any) => ({
+  return shops.map((shop: Record<string, unknown>) => ({
     _id: shop._id,
     name: shop.shopDomain || shop.domain || "Unnamed Store",
     domain: shop.shopDomain || shop.domain,

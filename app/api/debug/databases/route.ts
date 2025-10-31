@@ -13,13 +13,13 @@ export async function GET() {
     const currentDbName = db.databaseName;
     
     // Get stats for each database
-    const dbDetails: any = {};
+    const dbDetails: Record<string, { sizeOnDisk: number; empty: boolean; collections: string[] }> = {};
     for (const database of databases) {
       const dbRef = client.db(database.name);
       const collections = await dbRef.listCollections().toArray();
       dbDetails[database.name] = {
-        sizeOnDisk: database.sizeOnDisk,
-        empty: database.empty,
+        sizeOnDisk: database.sizeOnDisk || 0,
+        empty: database.empty || false,
         collections: collections.map(c => c.name),
       };
     }

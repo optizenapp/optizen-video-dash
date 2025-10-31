@@ -4,16 +4,72 @@ import { useEffect, useState } from "react";
 export const dynamic = 'force-dynamic';
 import { useParams } from "next/navigation";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import StatsCard from "@/components/dashboard/StatsCard";
-import { Eye, ShoppingCart, DollarSign, TrendingUp, Video, Play, AlertCircle, CheckCircle, Settings } from "lucide-react";
+import { Video, AlertCircle, CheckCircle, Settings } from "lucide-react";
 import { formatCurrency, formatNumber, formatDate } from "@/lib/utils";
 
+interface Campaign {
+  _id: string;
+  name: string;
+  status: string;
+  impressions: number;
+  views: number;
+  addToCartConversions: number;
+  revenueConversions: number;
+  addToCartRate: string;
+  revenueRate: string;
+  revenue: number;
+  createdAt: string;
+}
+
+interface VideoData {
+  _id: string;
+  status: string;
+  createdAt: string;
+  productId: string;
+  productTitle: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+}
+
 interface StoreData {
-  store: any;
-  summary: any;
-  campaigns: any[];
-  videos: any[];
-  stats: any;
+  store: {
+    _id: string;
+    shopDomain: string;
+    domain: string;
+    isActive: boolean;
+    planType: string;
+    createdAt: string;
+    billing?: unknown;
+    settings?: {
+      autoGenerateVideos?: boolean;
+      conversionTracking?: boolean;
+      defaultVideoSource?: string;
+      maxUpsellAmount?: number;
+    };
+    onboarding?: unknown;
+  };
+  summary: {
+    totalImpressions: number;
+    totalViews: number;
+    totalRevenue: number;
+    totalAddToCartConversions: number;
+    totalConversions: number;
+    addToCartRate: string;
+    revenueConversionRate: string;
+    activeCampaigns: number;
+  };
+  campaigns: Campaign[];
+  videos: VideoData[];
+  stats: {
+    totalCampaigns: number;
+    activeCampaigns: number;
+    totalVideos: number;
+    totalImpressions: number;
+    totalViews: number;
+    totalRevenue: number;
+    totalAddToCartConversions: number;
+    totalConversions: number;
+  };
 }
 
 export default function StoreDetailPage() {
@@ -60,7 +116,7 @@ export default function StoreDetailPage() {
     );
   }
 
-  const { store, summary, campaigns, videos, stats } = data;
+  const { store, summary, campaigns, videos } = data;
 
   return (
     <div className="space-y-8">

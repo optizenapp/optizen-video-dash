@@ -25,9 +25,12 @@ export async function GET() {
       campaignsCount: campaigns.length,
       summariesCount: summaries.length,
     });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message, stack: error.stack },
+      { 
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     );
   }

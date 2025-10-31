@@ -36,6 +36,7 @@ export default function DiscountsPage() {
 
   useEffect(() => {
     loadDiscounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, activeFilter, offset]);
 
   const loadDiscounts = async () => {
